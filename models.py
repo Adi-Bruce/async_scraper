@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from pydantic import BaseModel, HttpUrl, Field
-
+from html.parser import HTMLParser
 
 @dataclass
 class ScrapedPage:
@@ -45,3 +45,7 @@ class SummarizeResponse(BaseModel):
     successful: int
     failed: int
     total_duration_ms: int
+
+class MyHTMLParser(HTMLParser):
+    def handle_data(self, data: str):
+        return data

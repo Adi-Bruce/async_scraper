@@ -1,7 +1,9 @@
-from models import ScrapedPage
+from models import ScrapedPage,ExtractedText
 import asyncio
 import httpx
-
+import time
+from contextlib import asynccontextmanager
+from models import MyHTMLParser
 
 async def fetch(url: str, client: httpx.AsyncClient) -> ScrapedPage:
     try:
@@ -21,11 +23,22 @@ async def fetch_all(urls: list[str], timeout_seconds: int):
     async with httpx.AsyncClient(timeout=timeout_seconds) as cli:
         results = await asyncio.gather(
             *[fetch(url, cli) for url in urls],
-            return_exceptions=True
         )
         return results
 
-    
-async def main():
-    async with httpx.AsyncClient() as client:
-        response = await client.get()
+@asynccontextmanager
+async def timer(label: str):
+    t = time.perf_counter()
+    result = {"elapsed_time":0.0}
+    try:
+        yield result
+    finally:
+        elapsed = (time.perf_counter() - t) * 1000
+        result["elapsed_time"]=elapsed
+        print(f"{label}: {result['elapsed_ms']:.1f}ms")
+
+
+async def extract_text(page: ScrapedPage)-> ExtractedText:
+     parser = MyHTMLParser()
+     mahdata = parser(ScrapedPage.raw_html)
+     
