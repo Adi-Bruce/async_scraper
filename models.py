@@ -47,5 +47,15 @@ class SummarizeResponse(BaseModel):
     total_duration_ms: int
 
 class MyHTMLParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.chunks: list[str] = []
+    
     def handle_data(self, data: str):
-        return data
+        self.chunks.append(data)
+    
+    def get_text(self):
+        return " ".join(self.chunks)
+        
+
+        

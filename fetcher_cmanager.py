@@ -38,7 +38,21 @@ async def timer(label: str):
         print(f"{label}: {result['elapsed_ms']:.1f}ms")
 
 
-async def extract_text(page: ScrapedPage)-> ExtractedText:
-     parser = MyHTMLParser()
-     mahdata = parser(ScrapedPage.raw_html)
-     
+def extract_text(page: ScrapedPage, max_words: int = 500) -> ExtractedText:
+    parser = MyHTMLParser()
+    parser.feed(page.raw_html)
+    text = parser.get_shi()
+
+    words = text.split()
+    truncated = False
+
+    if len(words) > max_words:
+        words = words[:max_words]
+        truncated = True
+
+    return ExtractedText(
+        url=page.url,
+        text=" ".join(words),
+        word_count=len(words),
+        truncated=truncated,
+    )
